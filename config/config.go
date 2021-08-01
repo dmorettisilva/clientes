@@ -22,10 +22,9 @@ type DBConfig struct {
 
 //Config - struct para guardar configurações do aplicativo
 type Config struct {
-	DBConfig           *DBConfig
-	BaseUrl            string
-	Authorization      string
-	AuthorizationAlpha string
+	DBConfig      *DBConfig
+	BaseUrl       string
+	Authorization string
 }
 
 func New() (*Config, error) {
