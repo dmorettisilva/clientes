@@ -1,6 +1,7 @@
 package models
 
-type cliente struct {
+//Cliente representação da tabela pessoa
+type Cliente struct {
 	Idpessoa  int    `json:"idpessoa"`
 	Razao     string `json:"razao"`
 	Fantasia  string `json:"fantasia"`

@@ -1,34 +1,64 @@
 package database
 
 import (
+	"encoding/json"
 	"fmt"
-	"net/http"
-	"strconv"
+	"log"
+
+	"github.com/dmorettisilva/clientes/config"
+	_ "github.com/jmoiron/sqlx"
 )
 
+func ConsultaCliente(id string) []byte {
 
-func ConsultaCliente(id int) http.ResponseWriter, error {
-/*
-select pe.idpessoa,
-       pe.razao,
-       pe.fantasia,
-       pe.fg_bloqueado,
-       nvl(pf.cpf, pj.cgc) CPF_CNPJ,
-       nvl(pf.rg, pj.insestadual) RG_IE
-from gepessoas pe
-left join gepessoafisica pf on pf.idpessoa = pe.idpessoa 
-left join gepessoajuridica pj on pj.idpessoa = pe.idpessoa
-*/
+	sql := `select pe.idpessoa,
+                   pe.razao,
+                   pe.fantasia,
+                   pe.fg_bloqueado,
+                   nvl(pf.cpf, pj.cgc) CPF_CNPJ,
+                   nvl(pf.rg, pj.insestadual) RG_IE
+            from gepessoas pe
+            left join gepessoafisica pf on pf.idpessoa = pe.idpessoa 
+            left join gepessoajuridica pj on pj.idpessoa = pe.idpessoa
+            where ( (%s = 0) or (%s = pe.idpessoa) )`
 
-//Passar resultado do select para struct 
+	//Passar resultado do select para struct
 
-//montar json dentro de um response
+	config.New()
+	var db *DAO
 
-w.Header().Set("Content-type", "application/json")
-w.WriteHeader(errorCodeAtu)
-w.Write([]byte(response))
+	if len(id) == 0 {
+		fmt.Sprintf(sql, "0")
+	} else {
+		fmt.Sprintf(sql, id)
+	}
 
-return w
+	rows, err := db.db.DB.Query(sql)
+	defer rows.Close()
+
+	if err != nil {
+		return nil
+	}
+
+	columns, _ := rows.Columns()
+	count := len(columns)
+
+	var v struct {
+		Data []interface{}
+	}
+
+	for rows.Next() {
+		values := make([]interface{}, count)
+		valuePtrs := make([]interface{}, count)
+		for i, _ := range columns {
+			valuePtrs[i] = &values[i]
+		}
+		if err := rows.Scan(valuePtrs...); err != nil {
+			log.Fatal(err)
+		}
+		v.Data = append(v.Data, values)
+	}
+	jsonMsg, err := json.Marshal(v)
+	return jsonMsg
 
 }
-

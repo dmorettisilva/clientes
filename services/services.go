@@ -7,6 +7,8 @@ import (
 	"github.com/dmorettisilva/clientes/config"
 	"github.com/dmorettisilva/clientes/database"
 	"github.com/gorilla/mux"
+
+	_ "github.com/jmoiron/sqlx"
 )
 
 //Service - struct que representa os services
@@ -30,7 +32,7 @@ func (s *Service) RouteDefault(w http.ResponseWriter, r *http.Request) {
 func (s *Service) authAPI(next httpHandlerFunc) httpHandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		header := r.Header.Get("Authorization")
-		if header != s.cfg.AuthorizationAlpha {
+		if header != s.cfg.Authorization {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusUnauthorized)
 			w.Write([]byte(`{ "errors": "401", "message": "invalid authorization" }`))
