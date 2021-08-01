@@ -22,8 +22,6 @@ func ConsultaCliente(id string) []byte {
             left join gepessoajuridica pj on pj.idpessoa = pe.idpessoa
             where ( (%s = 0) or (%s = pe.idpessoa) )`
 
-	//Passar resultado do select para struct
-
 	config.New()
 	var db *DAO
 
